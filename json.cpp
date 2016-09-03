@@ -10,12 +10,16 @@ std::shared_ptr<JSON::JSONBase> JSON::JSONBase::operator[](std::string index) {
     return invalidBase;
 }
 
-std::optional<double> JSON::JSONBase::to_num() {
+std::optional<double> JSON::JSONBase::get_num() {
     return std::optional<double>();
 }
 
-std::optional<std::string> JSON::JSONBase::to_str() {
+std::optional<std::string> JSON::JSONBase::get_str() {
     return std::optional<std::string>();
+}
+
+std::string JSON::JSONBase::to_string() const {
+    return "null";
 }
 
 std::shared_ptr<JSON::JSONBase> JSON::JSONArray::operator[](std::size_t index) {
@@ -23,6 +27,20 @@ std::shared_ptr<JSON::JSONBase> JSON::JSONArray::operator[](std::size_t index) {
         return array[index];
     else
         return invalidBase;
+}
+
+std::string JSON::JSONArray::to_string() const {
+    bool first = true;
+    std::string s("[");
+    for (const auto& i : array) {
+        if (!first) {
+            s.append(",");
+        }
+        first = false;
+        s.append(i->to_string());
+    }
+    s.append("]");
+    return s;
 }
 
 std::shared_ptr<JSON::JSONBase> JSON::JSONMap::operator[](std::string index) {
@@ -33,12 +51,34 @@ std::shared_ptr<JSON::JSONBase> JSON::JSONMap::operator[](std::string index) {
         return invalidBase;
 }
 
-std::optional<double> JSON::JSONNumber::to_num() {
+std::string JSON::JSONMap::to_string() const {
+    bool first = true;
+    std::string s("[");
+    for (const auto& pair : map) {
+        if (!first) {
+            s.append(",");
+        }
+        first = false;
+        s.append('"' + pair.first + "\":" + pair.second->to_string());
+    }
+    s.append("}");
+    return s;
+}
+
+std::optional<double> JSON::JSONNumber::get_num() {
     return std::optional<double>(number);
 }
 
-std::optional<std::string> JSON::JSONString::to_str() {
+std::string JSON::JSONNumber::to_string() const {
+    return std::to_string(number);
+}
+
+std::optional<std::string> JSON::JSONString::get_str() {
     return std::optional<std::string>(string);
+}
+
+std::string JSON::JSONString::to_string() const {
+    return '"' + string + '"';
 }
 
 JSON JSON::operator[](std::size_t index) {
@@ -49,10 +89,14 @@ JSON JSON::operator[](std::string index) {
     return JSON((*impl)[index]);
 }
 
-std::optional<double> JSON::to_num() {
-    return impl->to_num();
+std::optional<double> JSON::get_num() {
+    return impl->get_num();
 }
 
-std::optional<std::string> JSON::to_str() {
-    return impl->to_str();
+std::optional<std::string> JSON::get_str() {
+    return impl->get_str();
+}
+
+std::string JSON::to_string() const {
+    return impl->to_string();
 }
