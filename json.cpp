@@ -1,13 +1,13 @@
 #include "json.h"
 
-JSON::JSONBase JSON::invalidBase;
+std::shared_ptr<JSON::JSONBase> JSON::invalidBase;
 
-JSON::JSONBase* JSON::JSONBase::operator[](std::size_t index) {
-    return this;
+std::shared_ptr<JSON::JSONBase> JSON::JSONBase::operator[](std::size_t index) {
+    return invalidBase;
 }
 
-JSON::JSONBase* JSON::JSONBase::operator[](std::string index) {
-    return this;
+std::shared_ptr<JSON::JSONBase> JSON::JSONBase::operator[](std::string index) {
+    return invalidBase;
 }
 
 std::optional<double> JSON::JSONBase::to_num() {
@@ -18,19 +18,19 @@ std::optional<std::string> JSON::JSONBase::to_str() {
     return std::optional<std::string>();
 }
 
-JSON::JSONBase* JSON::JSONArray::operator[](std::size_t index) {
+std::shared_ptr<JSON::JSONBase> JSON::JSONArray::operator[](std::size_t index) {
     if (index < array.size())
         return array[index];
     else
-        return &invalidBase;
+        return invalidBase;
 }
 
-JSON::JSONBase* JSON::JSONMap::operator[](std::string index) {
+std::shared_ptr<JSON::JSONBase> JSON::JSONMap::operator[](std::string index) {
     auto itr = map.find(index);
     if (itr != map.end())
         return itr->second;
     else
-        return &invalidBase;
+        return invalidBase;
 }
 
 std::optional<double> JSON::JSONNumber::to_num() {
