@@ -10,6 +10,14 @@ std::shared_ptr<JSON::JSONBase> JSON::JSONBase::operator[](std::string index) {
     return invalidBase;
 }
 
+bool JSON::JSONBase::for_each(std::function<void(JSON)> f) const {
+    return false;
+}
+
+bool JSON::JSONBase::for_each(std::function<void(std::string, JSON)> f) const {
+    return false;
+}
+
 std::optional<double> JSON::JSONBase::get_num() {
     return std::optional<double>();
 }
@@ -27,6 +35,13 @@ std::shared_ptr<JSON::JSONBase> JSON::JSONArray::operator[](std::size_t index) {
         return array[index];
     else
         return invalidBase;
+}
+
+bool JSON::JSONArray::for_each(std::function<void(JSON)> f) const {
+    for (const auto& i : array) {
+        f(i);
+    }
+    return true;
 }
 
 std::string JSON::JSONArray::to_string() const {
@@ -49,6 +64,13 @@ std::shared_ptr<JSON::JSONBase> JSON::JSONMap::operator[](std::string index) {
         return itr->second;
     else
         return invalidBase;
+}
+
+bool JSON::JSONMap::for_each(std::function<void(std::string, JSON)> f) const {
+    for (const auto& i : map) {
+        f(i.first, i.second);
+    }
+    return true;
 }
 
 std::string JSON::JSONMap::to_string() const {

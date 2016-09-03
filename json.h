@@ -22,8 +22,8 @@ protected:
         virtual std::shared_ptr<JSONBase> operator[](std::size_t index);
         virtual std::shared_ptr<JSONBase> operator[](std::string index);
 
-        void for_each(std::function<void(JSON)> f);
-        void for_each(std::function<void(std::string, JSON)> f);
+        virtual bool for_each(std::function<void(JSON)> f) const;
+        virtual bool for_each(std::function<void(std::string, JSON)> f) const;
 
         virtual std::optional<double> get_num();
         virtual std::optional<std::string> get_str();
@@ -37,8 +37,9 @@ protected:
     public:
         JSONArray() = default;
         JSONArray(const std::vector<std::shared_ptr<JSON::JSONBase>>& array) : array(array) {}
-        virtual std::shared_ptr<JSONBase> operator[](std::size_t index) override;
         static std::shared_ptr<JSONBase> parse(const char*&);
+        virtual std::shared_ptr<JSONBase> operator[](std::size_t index) override;
+        virtual bool for_each(std::function<void(JSON)> f) const override;
         virtual std::string to_string() const override;
     };
 
@@ -48,8 +49,9 @@ protected:
     public:
         JSONMap() = default;
         JSONMap(const std::map<std::string, std::shared_ptr<JSONBase>>& map) : map(map) {}
-        virtual std::shared_ptr<JSONBase> operator[](std::string index) override;
         static std::shared_ptr<JSONBase> parse(const char*&);
+        virtual std::shared_ptr<JSONBase> operator[](std::string index) override;
+        virtual bool for_each(std::function<void(std::string, JSON)> f) const override;
         virtual std::string to_string() const override;
     };
 
@@ -59,8 +61,8 @@ protected:
     public:
         JSONNumber() = default;
         JSONNumber(double number) : number(number) {}
-        virtual std::optional<double> get_num() override;
         static std::shared_ptr<JSONBase> parse(const char*&);
+        virtual std::optional<double> get_num() override;
         virtual std::string to_string() const override;
     };
 
@@ -70,8 +72,8 @@ protected:
     public:
         JSONString() = default;
         JSONString(const std::string& string) : string(string) {}
-        virtual std::optional<std::string> get_str() override;
         static std::shared_ptr<JSONBase> parse(const char*&);
+        virtual std::optional<std::string> get_str() override;
         virtual std::string to_string() const override;
     };
 
@@ -87,14 +89,14 @@ private:
 public:
     JSON() : impl(nullptr) {}
 
+    static JSON parse(std::string);
+
     JSON operator[](std::size_t index);
     JSON operator[](std::string index);
     std::optional<double> get_num();
     std::optional<std::string> get_str();
 
     std::string to_string() const;
-
-    static JSON parse(std::string);
 
     static JSON to_json(double d) {
         return std::shared_ptr<JSONBase>(new JSONNumber(d));
